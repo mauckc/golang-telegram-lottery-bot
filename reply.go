@@ -20,12 +20,12 @@ func reg(msg *tgbotapi.Message, update tgbotapi.Update) {
 	gdb.Where("id = ?", 1).First(&info)
 
 	if info.Active == false {
-		textReply = "В настоящий момент регистрация закрыта"
+		textReply = "Currently, registration is closed"
 	} else {
 		gdb.Where("userId = ?", msg.From.ID).First(&currentUser)
 
 		if currentUser.Id > 0 {
-			textReply = "Вы уже учавствуете в конкурсе!"
+			textReply = "You are already participating in the contest!"
 		} else {
 			gdb.Create(&users)
 			gdb.Model(&users).Update(User{
@@ -34,7 +34,7 @@ func reg(msg *tgbotapi.Message, update tgbotapi.Update) {
 				UserNick: msg.From.FirstName + " " + msg.From.LastName,
 				IsWinner: false,
 			})
-			textReply = "Вы зарегестрировались! Если вы выиграете, мы с Вами свяжемся!"
+			textReply = "You have registered! If you win, we will contact you!"
 		}
 	}
 
@@ -57,9 +57,9 @@ func start(msg *tgbotapi.Message, update tgbotapi.Update) {
 		gdb.Model(&info).Where("id = ?", 1).UpdateColumn("is_ready", false)
 		gdb.Delete(&users)
 		gdb.Delete(&seq)
-		textReply = "Список очищен и регистрация открыта"
+		textReply = "The contest is ready and registration is open"
 	} else {
-		textReply = "Регистрация уже открыта!"
+		textReply = "Registration is already open!"
 	}
 
 	reply = tgbotapi.NewMessage(msg.Chat.ID, textReply)
@@ -75,10 +75,10 @@ func stop(msg *tgbotapi.Message, update tgbotapi.Update) {
 	gdb.Where("id = ?", 1).First(&infoCheck)
 
 	if infoCheck.Active == false {
-		textReply = "Регистрация уже закрыта!"
+		textReply = "Registration is already closed!"
 	} else {
 		gdb.Model(&info).Where("id = ?", 1).UpdateColumn("active", false)
-		textReply = "Регистрация закрыта"
+		textReply = "Registration is closed"
 	}
 
 	reply = tgbotapi.NewMessage(msg.Chat.ID, textReply)
@@ -97,7 +97,7 @@ func list(msg *tgbotapi.Message) {
 		}
 		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, output))
 	} else {
-		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Список пуст"))
+		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "The list is empty"))
 	}
 }
 
@@ -114,7 +114,7 @@ func startLottery(msg *tgbotapi.Message) {
 	gdb.Where("id = ?", 1).First(&infoCheck)
 
 	if infoCheck.IsReady == true {
-		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Победители уже определены!"))
+		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Winners have been hashed!"))
 		gdb.Where("is_winner = ?", true).Find(&winners)
 		for _, i := range winners {
 			output += strconv.Itoa(i.Id) + ". " +  i.UserNick + " " + "(@" + i.Username + ")\n"
@@ -125,7 +125,7 @@ func startLottery(msg *tgbotapi.Message) {
 			winnersCount = len(users)
 		}
 
-		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Определяются победители - " + digitToWord(winnersCount) + "..."))
+		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Top Hashers are - " + digitToWord(winnersCount) + "..."))
 
 
 		for _, i := range uniqueRandom(winnersCount, len(users)) {
@@ -134,7 +134,7 @@ func startLottery(msg *tgbotapi.Message) {
 
 		gdb.Model(&info).Where("id = ?", 1).UpdateColumn("is_ready", true)
 
-		output = "Выбраны победители!\n"
+		output = "Winners computed!\n"
 		gdb.Where("is_winner = ?", true).Find(&winners)
 		for _, i := range winners {
 			output += strconv.Itoa(i.Id) + ". " +  i.UserNick + " " + "(@" + i.Username + ")\n"
@@ -174,19 +174,19 @@ func messageToWinners(msg *tgbotapi.Message) {
 		}
 	}
 
-	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Поздравления отправлены!"))
+	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Hello and Greetings!"))
 }
 
 func regstop(msg *tgbotapi.Message) {
 	var info Info
 
 	gdb.Model(&info).Where("id = ?", 1).UpdateColumn("active", false)
-	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Регистрация приостановлена"))
+	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Registration suspended!"))
 }
 
 func regstart(msg *tgbotapi.Message) {
 	var info Info
 
 	gdb.Model(&info).Where("id = ?", 1).UpdateColumn("active", true)
-	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Регистрация возобновлена"))
+	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Registraion renewed"))
 }

@@ -63,30 +63,30 @@ func main() {
 			command := msg.Command()
 
 			switch command {
-				// Регистрация
+				// Check in
 			case "start":
 				reg(msg, update)
-				// Старт лотореи
+				// Старт лотореи -> Late Night?
 			case "begin":
 				if checkAdminAccess(msg) {
 					start(msg, update)
 				}
-				// Стоп
+				// Stop
 			case "finish":
 				if checkAdminAccess(msg) {
 					stop(msg, update)
 				}
-				// Список участников
+				// List of Participants
 			case "list":
 				if checkAdminAccess(msg) {
 					list(msg)
 				}
-				// Разыграть
+				// Play
 			case "startLottery":
 				if checkAdminAccess(msg) {
 					startLottery(msg)
 				}
-				// Сообщение победителям
+				// Message to the winners
 			case "winners":
 				if checkAdminAccess(msg) {
 					messageToWinners(msg)
